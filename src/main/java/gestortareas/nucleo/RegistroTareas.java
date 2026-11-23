@@ -9,30 +9,29 @@ import java.util.List;
 // Guarda las tareas de primer nivel y reparte los id. Es el receptor del patrón Command.
 public class RegistroTareas {
 
-    private final List<Tarea> tareas = new ArrayList<>();
-    private int ultimoId = 0;
+    private final List<Tarea> raices = new ArrayList<>();
+    private int siguienteId = 1;
 
     // entrega un id nuevo para crear una tarea
-    public int siguienteId() {
-        ultimoId++;
-        return ultimoId;
+    public int nuevoId() {
+        return siguienteId++;
     }
 
     public void agregar(Tarea tarea) {
-        tareas.add(tarea);
+        raices.add(tarea);
     }
 
     public void quitar(Tarea tarea) {
-        tareas.remove(tarea);
+        raices.remove(tarea);
     }
 
     public List<Tarea> getTareas() {
-        return Collections.unmodifiableList(tareas);
+        return Collections.unmodifiableList(raices);
     }
 
     // busca una tarea por id en todo el árbol (también dentro de las compuestas)
-    public Tarea buscar(int id) {
-        return buscarEn(tareas, id);
+    public Tarea buscarPorId(int id) {
+        return buscarEn(raices, id);
     }
 
     private Tarea buscarEn(List<Tarea> lista, int id) {
