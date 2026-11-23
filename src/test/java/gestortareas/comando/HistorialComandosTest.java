@@ -21,7 +21,7 @@ class HistorialComandosTest {
     private final HistorialComandos historial = new HistorialComandos();
 
     private TareaSimple nuevaTarea(String titulo) {
-        return new TareaSimple(registro.siguienteId(), titulo, "Carol", Prioridad.MEDIA, fecha);
+        return new TareaSimple(registro.nuevoId(), titulo, "Carol", Prioridad.MEDIA, fecha);
     }
 
     @Test
@@ -44,7 +44,7 @@ class HistorialComandosTest {
 
     @Test
     void crearSubtareaSeAgregaAlPadreYSeDeshace() {
-        TareaCompuesta padre = new TareaCompuesta(registro.siguienteId(), "Código", "Juan", Prioridad.ALTA, fecha);
+        TareaCompuesta padre = new TareaCompuesta(registro.nuevoId(), "Código", "Juan", Prioridad.ALTA, fecha);
         TareaSimple hija = nuevaTarea("Modelo");
         historial.ejecutar(new CrearTareaComando(registro, hija, padre));
         assertEquals(1, padre.getSubtareas().size());
