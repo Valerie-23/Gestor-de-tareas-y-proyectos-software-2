@@ -4,12 +4,15 @@ import gestortareas.modelo.Tarea;
 import gestortareas.modelo.TareaCompuesta;
 import gestortareas.nucleo.RegistroTareas;
 
-// Patrón Command: comando concreto. Crea una tarea (de primer nivel o como subtarea) y sabe quitarla.
+//patron Command.
+//crea una tarea. Si no tiene padre se agrega como tarea principal,
+//si tiene padre se agrega como subtarea de esa tarea compuesta.
+
 public class CrearTareaComando implements Comando {
 
     private final RegistroTareas registro;
     private final Tarea tarea;
-    private final TareaCompuesta padre; // null si es una tarea de primer nivel
+    private final TareaCompuesta padre;   // vacio si es una tarea principal
 
     public CrearTareaComando(RegistroTareas registro, Tarea tarea, TareaCompuesta padre) {
         this.registro = registro;
@@ -26,6 +29,7 @@ public class CrearTareaComando implements Comando {
         }
     }
 
+    //para deshacer se quita la tarea del lugar donde se agrego.
     @Override
     public void deshacer() {
         if (padre == null) {

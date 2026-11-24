@@ -1,15 +1,19 @@
 package gestortareas.orden;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import gestortareas.modelo.Prioridad;
 import gestortareas.modelo.Tarea;
 import gestortareas.modelo.TareaSimple;
-import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
-// Pruebas del patrón Strategy
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+//pruebas del patron Strategy
+
 class CriterioOrdenTest {
 
     private final Tarea a = new TareaSimple(1, "A", "Valerie", Prioridad.BAJA, LocalDate.of(2026, 12, 20));
@@ -34,27 +38,35 @@ class CriterioOrdenTest {
 
     @Test
     void noModificaLaListaOriginal() {
-        List<Tarea> original = new java.util.ArrayList<>(tareas);
+        List<Tarea> original = new ArrayList<>(tareas);
         new OrdenPorPrioridad().ordenar(original);
         assertEquals(tareas, original);
     }
 
+    //se puede usar cualquier criterio sin saber cual es.
     @Test
     void sePuedeUsarCualquierCriterioSinSaberCual() {
-        for (CriterioOrden criterio : List.of(new OrdenPorPrioridad(), new OrdenPorFecha(), new OrdenPorResponsable())) {
+        List<CriterioOrden> criterios = List.of(new OrdenPorPrioridad(), new OrdenPorFecha(), new OrdenPorResponsable());
+        for (CriterioOrden criterio : criterios) {
             assertEquals(3, criterio.ordenar(tareas).size());
             assertFalse(criterio.getNombre().isBlank());
         }
     }
 
+    //un criterio nuevo se agrega solo creando una clase.
     @Test
-    void unCriterioNuevoSeAgregaSoloCreandoUnaClase() { // Abierto/cerrado
-        CriterioOrden porTitulo = new CriterioOrden() {
-            public String getNombre() { return "Por título"; }
-            public java.util.Comparator<Tarea> comparador() {
-                return java.util.Comparator.comparing(Tarea::getTitulo).reversed();
+    void unCriterioNuevoSeAgregaSoloCreandoUnaClase() {
+        CriterioOrden porTituloInverso = new CriterioOrden() {
+            @Override
+            public String getNombre() {
+                return "Por titulo (Z-A)";
+            }
+
+            @Override
+            public Comparator<Tarea> comparador() {
+                return (x, y) -> y.getTitulo().compareTo(x.getTitulo());
             }
         };
-        assertEquals(List.of(c, b, a), porTitulo.ordenar(tareas));
+        assertEquals(List.of(c, b, a), porTituloInverso.ordenar(tareas));
     }
 }

@@ -1,9 +1,12 @@
 package gestortareas.orden;
 
 import gestortareas.modelo.Tarea;
+
 import java.util.Comparator;
 
-// Patrón Strategy: estrategia concreta. De la prioridad más alta a la más baja.
+//patron Strategy.
+//ordena de la prioridad mas alta a la mas baja
+
 public class OrdenPorPrioridad implements CriterioOrden {
 
     @Override
@@ -13,6 +16,6 @@ public class OrdenPorPrioridad implements CriterioOrden {
 
     @Override
     public Comparator<Tarea> comparador() {
-        return Comparator.comparing(Tarea::getPrioridad); // ALTA, MEDIA, BAJA
+        return (a, b) -> a.getPrioridad().compareTo(b.getPrioridad());
     }
 }

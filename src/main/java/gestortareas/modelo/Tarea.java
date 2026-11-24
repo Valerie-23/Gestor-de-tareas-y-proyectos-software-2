@@ -26,7 +26,7 @@ public abstract class Tarea {
         this.responsable = responsable;
         this.prioridad = prioridad;
         this.fechaLimite = fechaLimite;
-        this.estado = new Pendiente();   // toda tarea empieza en Pendiente
+        this.estado = new Pendiente();   // todas las tareas empiezan en pendiente
     }
 
     //porcentaje de avance de la tarea, de 0 a 100.

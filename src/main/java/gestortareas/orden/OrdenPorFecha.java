@@ -1,10 +1,13 @@
 package gestortareas.orden;
 
 import gestortareas.modelo.Tarea;
-import java.time.LocalDate;
+
 import java.util.Comparator;
 
-// Patrón Strategy: estrategia concreta. De la fecha límite más cercana a la más lejana; sin fecha al final.
+//patron Strategy.
+//ordena de la fecha limite mas cercana a la mas lejana.
+//las tareas sin fecha quedan al final.
+
 public class OrdenPorFecha implements CriterioOrden {
 
     @Override
@@ -14,7 +17,17 @@ public class OrdenPorFecha implements CriterioOrden {
 
     @Override
     public Comparator<Tarea> comparador() {
-        return Comparator.comparing(Tarea::getFechaLimite,
-                Comparator.nullsLast(Comparator.<LocalDate>naturalOrder()));
+        return (a, b) -> {
+            if (a.getFechaLimite() == null && b.getFechaLimite() == null) {
+                return 0;
+            }
+            if (a.getFechaLimite() == null) {
+                return 1;
+            }
+            if (b.getFechaLimite() == null) {
+                return -1;
+            }
+            return a.getFechaLimite().compareTo(b.getFechaLimite());
+        };
     }
 }

@@ -10,7 +10,7 @@ public abstract class EstadoTarea {
     //nombre que se muestra al usuario
     public abstract String getNombre();
 
-    //Indica si desde este estado se puede pasar al estado destino.
+    //indica si desde este estado se puede pasar al estado destino.
     public abstract boolean permiteIrA(EstadoTarea destino);
 
 

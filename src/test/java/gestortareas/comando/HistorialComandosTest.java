@@ -1,7 +1,5 @@
 package gestortareas.comando;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import gestortareas.estado.EnCurso;
 import gestortareas.estado.Pendiente;
 import gestortareas.estado.Terminada;
@@ -10,10 +8,14 @@ import gestortareas.modelo.Prioridad;
 import gestortareas.modelo.TareaCompuesta;
 import gestortareas.modelo.TareaSimple;
 import gestortareas.nucleo.RegistroTareas;
-import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
-// Pruebas del patrón Command
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+//pruebas del patron Command
+
 class HistorialComandosTest {
 
     private final LocalDate fecha = LocalDate.of(2026, 12, 1);
@@ -26,20 +28,21 @@ class HistorialComandosTest {
 
     @Test
     void crearTareaLaAgregaYDeshacerLaQuita() {
-        TareaSimple t = nuevaTarea("Diseñar UML");
-        historial.ejecutar(new CrearTareaComando(registro, t, null));
+        TareaSimple tarea = nuevaTarea("Diseñar UML");
+        historial.ejecutar(new CrearTareaComando(registro, tarea, null));
         assertEquals(1, registro.getTareas().size());
+
         historial.deshacer();
         assertTrue(registro.getTareas().isEmpty());
     }
 
     @Test
     void rehacerVuelveAAgregarLaTarea() {
-        TareaSimple t = nuevaTarea("Diseñar UML");
-        historial.ejecutar(new CrearTareaComando(registro, t, null));
+        TareaSimple tarea = nuevaTarea("Diseñar UML");
+        historial.ejecutar(new CrearTareaComando(registro, tarea, null));
         historial.deshacer();
         historial.rehacer();
-        assertSame(t, registro.getTareas().get(0));
+        assertSame(tarea, registro.getTareas().get(0));
     }
 
     @Test
@@ -48,59 +51,67 @@ class HistorialComandosTest {
         TareaSimple hija = nuevaTarea("Modelo");
         historial.ejecutar(new CrearTareaComando(registro, hija, padre));
         assertEquals(1, padre.getSubtareas().size());
+
         historial.deshacer();
         assertTrue(padre.getSubtareas().isEmpty());
     }
 
+    //crear, cambiar estado, deshacer dos veces y rehacer.
     @Test
     void ejemploDelDocumentoCrearCambiarDeshacerDeshacerRehacer() {
-        TareaSimple t = nuevaTarea("Diseñar UML");
-        historial.ejecutar(new CrearTareaComando(registro, t, null));
-        historial.ejecutar(new CambiarEstadoComando(t, new EnCurso()));
-        assertTrue(t.getEstado() instanceof EnCurso);
+        TareaSimple tarea = nuevaTarea("Diseñar UML");
+        historial.ejecutar(new CrearTareaComando(registro, tarea, null));
+        historial.ejecutar(new CambiarEstadoComando(tarea, new EnCurso()));
+        assertTrue(tarea.getEstado() instanceof EnCurso);
 
-        historial.deshacer(); // vuelve a Pendiente
-        assertTrue(t.getEstado() instanceof Pendiente);
+        historial.deshacer();   // vuelve a Pendiente
+        assertTrue(tarea.getEstado() instanceof Pendiente);
         assertEquals(1, registro.getTareas().size());
 
-        historial.deshacer(); // desaparece
+        historial.deshacer();   // la tarea desaparece
         assertTrue(registro.getTareas().isEmpty());
 
-        historial.rehacer();  // vuelve a aparecer
+        historial.rehacer();    // la tarea vuelve a aparecer
         assertEquals(1, registro.getTareas().size());
     }
 
+    //una accion nueva borra lo que se podia rehacer.
     @Test
-    void unaAccionNuevaBorraLoQueSePodiaRehacer() { // RF-9
-        TareaSimple t = nuevaTarea("A");
-        historial.ejecutar(new CrearTareaComando(registro, t, null));
+    void unaAccionNuevaBorraLoQueSePodiaRehacer() {
+        TareaSimple tarea = nuevaTarea("A");
+        historial.ejecutar(new CrearTareaComando(registro, tarea, null));
         historial.deshacer();
         assertTrue(historial.puedeRehacer());
+
         historial.ejecutar(new CrearTareaComando(registro, nuevaTarea("B"), null));
+
         assertFalse(historial.puedeRehacer());
-        assertThrows(IllegalStateException.class, historial::rehacer);
+        assertThrows(IllegalStateException.class, () -> historial.rehacer());
     }
 
     @Test
     void cambioInvalidoLanzaExcepcionYNoQuedaEnElHistorial() {
-        TareaSimple t = nuevaTarea("A");
+        TareaSimple tarea = nuevaTarea("A");
         assertThrows(TransicionInvalidaException.class,
-                () -> historial.ejecutar(new CambiarEstadoComando(t, new Terminada())));
+                () -> historial.ejecutar(new CambiarEstadoComando(tarea, new Terminada())));
         assertFalse(historial.puedeDeshacer());
-        assertTrue(t.getEstado() instanceof Pendiente);
+        assertTrue(tarea.getEstado() instanceof Pendiente);
     }
 
     @Test
     void deshacerSinAccionesLanzaExcepcion() {
         assertFalse(historial.puedeDeshacer());
-        assertThrows(IllegalStateException.class, historial::deshacer);
+        assertThrows(IllegalStateException.class, () -> historial.deshacer());
     }
 
     @Test
-    void descripcionesLegiblesParaElUsuario() {
-        TareaSimple t = nuevaTarea("Diseñar UML");
-        Comando c = new CambiarEstadoComando(t, new EnCurso());
-        assertTrue(c.getDescripcion().contains("Diseñar UML"));
-        assertTrue(c.getDescripcion().contains("En curso"));
+    void deshacerDevuelveLaDescripcionDeLaAccion() {
+        TareaSimple tarea = nuevaTarea("Diseñar UML");
+        historial.ejecutar(new CambiarEstadoComando(tarea, new EnCurso()));
+
+        String descripcion = historial.deshacer();
+
+        assertTrue(descripcion.contains("Diseñar UML"));
+        assertTrue(descripcion.contains("En curso"));
     }
 }
